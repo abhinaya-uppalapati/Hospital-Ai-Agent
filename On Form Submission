@@ -1,0 +1,276 @@
+{
+  "name": "hospital agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Appointment Details",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "Full Name",
+              "fieldLabel": "Full Name",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Mobile Number",
+              "fieldLabel": "Mobile Number",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Email",
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Services",
+              "fieldLabel": "Services",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "General Checkup"
+                  },
+                  {
+                    "option": "Dental Checkup"
+                  },
+                  {
+                    "option": "Orthopadic"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f89692da-d150-4a22-95f7-336cfefe5074",
+      "name": "On form submission",
+      "webhookId": "40bc867d-2764-4d47-9643-947d69ae1797"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Email }}",
+        "options": {
+          "systemMessage": "You are a Doctor Appointment Coordination Agent responsible for professionally assisting users with scheduling medical appointments.\n\nYour role is strictly limited to collecting, validating, confirming, and communicating appointment information. You do NOT provide medical advice, diagnoses, or treatment recommendations.\n\nYour responsibilities include:\n- Politely collecting required appointment details from the user\n- Verifying accuracy and completeness of all information\n- Requesting clarification for missing or unclear details\n- Confirming appointment information before final submission\n- Generating clear and professional appointment confirmation messages or emails\n\nRequired appointment details:\n- Patient full name\n- Contact information (phone number and/or email)\n- Doctor or department requested\n- Reason for visit (brief, non-diagnostic)\n- Preferred appointment date and time\n- Alternate date and time (if available)\n\nCommunication and behavior guidelines:\n- Maintain a calm, respectful, and professional tone at all times\n- Ask concise and relevant follow-up questions only when required\n- Do not assume or infer medical information\n- Clearly summarize appointment details for confirmation\n- Allow the user to correct or update information before submission\n\nSafety and compliance rules:\n- Do NOT provide medical advice or emergency guidance\n- If the user describes a medical emergency, advise them to contact local emergency services immediately\n- Do not store, invent, or modify sensitive medical information\n- Treat all patient information as confidential\n\nOutput rules:\n- When information is complete and confirmed, produce a structured appointment summary suitable for system submission or email delivery\n- Do not include internal reasoning, explanations, or unnecessary conversational text\n- Do not fabricate any data\n\nYour function is limited to appointment coordination and communication only.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "03e98988-c721-472b-8c22-ac728741dab5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "b44fdb88-ded2-49e7-8bba-59b5015821d8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "kGO6rqw8LyirnNFK",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1C4Wd7cz6GNLEwubzEO1vZXGjvdKO5_X21brlB1SxWtU",
+          "mode": "list",
+          "cachedResultName": "Hospital Booking Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C4Wd7cz6GNLEwubzEO1vZXGjvdKO5_X21brlB1SxWtU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C4Wd7cz6GNLEwubzEO1vZXGjvdKO5_X21brlB1SxWtU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('On form submission').item.json['Full Name'] }}",
+            "Email": "={{ $('On form submission').item.json.Email }}",
+            "Service": "={{ $('On form submission').item.json.Services }}",
+            "Appointement Date": "={{ $now.plus({ days: 3 }).toFormat('yyyy-MM-dd') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Appointement Date",
+              "displayName": "Appointement Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        0
+      ],
+      "id": "7f77db62-53aa-42e8-9935-6d6f22bd9fb0",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GHyQlzZehFS3FION",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Appointment Confirmation",
+        "emailType": "text",
+        "message": "=Hello {{ $json.Name }},\n\nWe hope you are doing well.\n\nThis email is to inform you that your appointment has been successfully booked with our hospital. Please find the appointment details below:\n\nPatient Name: {{ $json.Name }}\nAppointment Date: {{ $json['Appointement Date'] }}\nContact Number: {{ $('On form submission').item.json['Mobile Number'] }}\nEmail Address: {{ $json.Email }}\nService:{{ $json.Service }}\n\nKindly ensure that you arrive at the hospital at least 10–15 minutes prior to your scheduled appointment time.\n\nIf you need to reschedule your appointment or have any questions, please feel free to reply to this email.\n\nThank you for choosing our services. We look forward to assisting you.\n\nBest regards,\nHospital Appointment  Team\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "09ff373b-014e-4cf6-bea9-277cc464adcb",
+      "name": "Send a message",
+      "webhookId": "b63a1e8f-a988-4f12-981b-4a4e89fd66a2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KLoRrpajcT9vZtrD",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "452ca192-f392-4cad-95ff-7c28f289f1b9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2d4f79e30fda46e787af2793ed9389adc82dfc566d7d9fdfde07f03722c4b566"
+  },
+  "id": "T2wmKE2mOsCpFqgO5P5JJ",
+  "tags": []
+}
